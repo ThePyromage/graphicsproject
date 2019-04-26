@@ -1,9 +1,10 @@
 #pragma once
+#include <glm/glm.hpp>
 
 class Mesh
 {
 public:
-	Mesh() : triCount(0), vao(0), vbo(0), ibo(0) {}
+	Mesh();
 	virtual ~Mesh();
 
 	struct Vertex

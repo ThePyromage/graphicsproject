@@ -30,10 +30,43 @@ bool Application3D::startup() {
 										  getWindowWidth() / (float)getWindowHeight(),
 										  0.1f, 1000.f);
 
+	//loads shaders
+	m_shader.loadShader(aie::eShaderStage::VERTEX,
+		"./shaders/simple.vert");
+
+	m_shader.loadShader(aie::eShaderStage::FRAGMENT,
+		"./shaders/simple.frag");
+
+	//checks if shaders are linked
+	if (m_shader.link() == false)
+	{
+		printf("Shader Error: %s\n", m_shader.getLastError());
+		return false;
+	}
+
+	m_testMat = Material(&m_shader);
+
+	m_bunnyTex = new aie::Texture("./textures/grass.png");
+
+	m_testMat.AddMap(m_bunnyTex);
+
+	//m_quadMesh.initialiseQuad();
+	m_testMesh.load("./meshes/Bunny.obj", false);
+
+	//make the quad 10 units wide
+	m_meshTransform = {
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+
 	return true;
 }
 
 void Application3D::shutdown() {
+
+	delete m_bunnyTex;
 
 	Gizmos::destroy();
 }
@@ -62,24 +95,8 @@ void Application3D::update(float deltaTime) {
 						i == 10 ? white : black);
 	}
 
-	// add a transform so that we can see the axis
-	Gizmos::addTransform(mat4(1));
-
-	// demonstrate a few shapes
-	Gizmos::addAABBFilled(vec3(0), vec3(1), vec4(0, 0.5f, 1, 0.25f));
-	Gizmos::addSphere(vec3(5, 0, 5), 1, 8, 8, vec4(1, 0, 0, 0.5f));
-	Gizmos::addRing(vec3(5, 0, -5), 1, 1.5f, 8, vec4(0, 1, 0, 1));
-	Gizmos::addDisk(vec3(-5, 0, 5), 1, 16, vec4(1, 1, 0, 1));
-	Gizmos::addArc(vec3(-5, 0, -5), 0, 2, 1, 8, vec4(1, 0, 1, 1));
-
 	mat4 t = glm::rotate(mat4(1), time, glm::normalize(vec3(1, 1, 1)));
 	t[3] = vec4(-2, 0, 0, 1);
-	Gizmos::addCylinderFilled(vec3(0), 0.5f, 1, 5, vec4(0, 1, 1, 1), &t);
-
-	// demonstrate 2D gizmos
-	Gizmos::add2DAABB(glm::vec2(getWindowWidth() / 2, 100),
-					  glm::vec2(getWindowWidth() / 2 * (fmod(getTime(), 3.f) / 3), 20),
-					  vec4(0, 1, 1, 1));
 
 	// quit if we press escape
 	aie::Input* input = aie::Input::getInstance();
@@ -97,6 +114,15 @@ void Application3D::draw() {
 	m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f,
 										  getWindowWidth() / (float)getWindowHeight(),
 										  0.1f, 1000.f);
+
+	m_testMat.Bind();
+
+	//bind transform
+	auto pvm = m_projectionMatrix * m_viewMatrix * m_meshTransform;
+	m_shader.bindUniform("ProjectionViewModel", pvm);
+
+	//draw mesh
+	m_testMesh.drawChunk(0);
 
 	// draw 3D gizmos
 	Gizmos::draw(m_projectionMatrix * m_viewMatrix);
