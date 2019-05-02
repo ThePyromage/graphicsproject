@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "OBJMesh.h"
 #include "Material.h"
+#include "LightManager.h"
 #include <glm/mat4x4.hpp>
 
 class Application3D : public aie::Application {
@@ -29,4 +30,5 @@ protected:
 	Material            m_testMat;
 	aie::Texture*       m_bunnyTex;
 	glm::mat4			m_meshTransform;
+	LightManager* m_lights;
 };

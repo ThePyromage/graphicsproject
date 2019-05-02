@@ -24,14 +24,14 @@ Material::Material(aie::ShaderProgram* shader)
 
 		int uniformHandle = glGetUniformLocation(m_shader->getHandle(), name.c_str());
 
-		m_shader->bindUniform(uniformHandle, i);
+		glUniform1i(uniformHandle, i);
 	}
 
 }
 
 Material::~Material()
 {
-
+	
 }
 
 void Material::AddMap(aie::Texture* texture) 

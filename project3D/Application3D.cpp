@@ -32,10 +32,10 @@ bool Application3D::startup() {
 
 	//loads shaders
 	m_shader.loadShader(aie::eShaderStage::VERTEX,
-		"./shaders/simple.vert");
+		"./shaders/phong.vert");
 
 	m_shader.loadShader(aie::eShaderStage::FRAGMENT,
-		"./shaders/simple.frag");
+		"./shaders/phong.frag");
 
 	//checks if shaders are linked
 	if (m_shader.link() == false)
@@ -43,6 +43,11 @@ bool Application3D::startup() {
 		printf("Shader Error: %s\n", m_shader.getLastError());
 		return false;
 	}
+
+	// Load light manager.
+	m_lights = new LightManager(&m_shader);
+	m_lights->AddLight({ 100.0f, 3.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, 5.0f);
+	m_lights->Update();
 
 	m_testMat = Material(&m_shader);
 
@@ -67,6 +72,7 @@ bool Application3D::startup() {
 void Application3D::shutdown() {
 
 	delete m_bunnyTex;
+	delete m_lights;
 
 	Gizmos::destroy();
 }
@@ -117,9 +123,10 @@ void Application3D::draw() {
 
 	m_testMat.Bind();
 
-	//bind transform
-	auto pvm = m_projectionMatrix * m_viewMatrix * m_meshTransform;
-	m_shader.bindUniform("ProjectionViewModel", pvm);
+	//bind matrices
+	m_shader.bindUniform("model", m_meshTransform);
+	m_shader.bindUniform("view", m_viewMatrix);
+	m_shader.bindUniform("projection", m_projectionMatrix);
 
 	//draw mesh
 	m_testMesh.drawChunk(0);
