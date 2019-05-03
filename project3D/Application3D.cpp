@@ -44,19 +44,22 @@ bool Application3D::startup() {
 		return false;
 	}
 
-	// Load light manager.
+	// Load light manager and add new light
 	m_lights = new LightManager(&m_shader);
-	m_lights->AddLight({ 100.0f, 3.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, 5.0f);
+	m_lights->AddLight({ 0.0f, 2.0f, 10.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, 5.0f);
 	m_lights->Update();
 
+	//create new material
 	m_testMat = Material(&m_shader);
 
-	m_bunnyTex = new aie::Texture("./textures/grass.png");
+	//get texture
+	m_spearTex = new aie::Texture("./textures/soulspear_diffuse.tga");
 
-	m_testMat.AddMap(m_bunnyTex);
+	//add texture to material
+	m_testMat.AddMap(m_spearTex);
 
-	//m_quadMesh.initialiseQuad();
-	m_testMesh.load("./meshes/Bunny.obj", false);
+	//load spear mesh
+	m_testMesh.load("./meshes/soulspear.obj", false, true);
 
 	//make the quad 10 units wide
 	m_meshTransform = {
@@ -69,9 +72,10 @@ bool Application3D::startup() {
 	return true;
 }
 
-void Application3D::shutdown() {
-
-	delete m_bunnyTex;
+void Application3D::shutdown() 
+{
+	//free memory
+	delete m_spearTex;
 	delete m_lights;
 
 	Gizmos::destroy();
